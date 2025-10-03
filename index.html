@@ -40,6 +40,7 @@
         padding: 0;
         font-size: 2rem;
         display: flex;
+      
         flex: 1;
         min-height: 100vh;
         align-items: center;
@@ -123,7 +124,17 @@
       .alt-background {
     background-color: rgb(0, 0, 28) !important; 
        transition: 1s;
+
+
+
+       button, .clock, .clock-face {
+  pointer-events: auto !important;
+  z-index: 1000;
+  position: relative;
 }
+}
+
+
   
 
     
@@ -132,17 +143,33 @@
     <script>
       const secondHand = document.querySelector(".second-hand");
       const hourHand = document.querySelector(".hour-hand");
-      const minuteHand = document.querySelector(".hour-hand");
+      const minuteHand = document.querySelector(".min-hand");
       const dataDisplay = document.querySelector(".display-text");
       const HandSelector = document.querySelector(".hand ");
-      const cloCK = document.querySelector(".clock");
+      const clock = document.querySelector(".clock");
       const button = document.getElementById("btn");
 
+      let toggleFlag = true;
 
+      function changeBG(hour) {
+
+        if(!toggleFlag) return; 
+
+        if(hour >= 18 || hour <= 7){
+          document.body.classList.add("alt-background");
+          clock.classList.add("alt");
+          return;
+        } else{
+          document.body.classList.remove("alt-background");
+          clock.classList.remove("alt");
+        }
+
+      }
 
       button.addEventListener('click', () => {
+        toggleFlag = !toggleFlag;
         document.body.classList.toggle("alt-background");
-        cloCK.classList.toggle("alt");
+        clock.classList.toggle("alt");
       })
 
       function setRotation(hand, degree) {
@@ -177,9 +204,13 @@
           .padStart(2, "0")} : ${minutes
           .toString()
           .padStart(2, "0")} : ${seconds.toString().padStart(2, "0")}`;
+
+          changeBG(hours);
       }
       setInterval(setDate, 1000);
       setDate();
+
+     
     </script>
   </body>
 </html>
