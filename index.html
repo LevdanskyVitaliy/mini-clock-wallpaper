@@ -5,7 +5,12 @@
     <title>JS + CSS Clock</title>
     <link rel="icon" href="https://fav.farm/⏰" />
   </head>
-  <body class="">
+  <body>
+    <!-- stars wrapper -->
+    <div class="wrapper"></div>
+
+    <canvas id="starfield"></canvas>
+
     <div class="clock">
       <div class="clock-face">
         <div class="hand hour-hand"></div>
@@ -14,15 +19,9 @@
       </div>
 
       <div class="text-section">
-         <button id="btn">
-           <div class="display-text"></div>
+        <button id="btn">
+          <div class="display-text"></div>
         </button>
-
-      </div>
-       
-
-      
-       
       </div>
     </div>
 
@@ -40,10 +39,21 @@
         padding: 0;
         font-size: 2rem;
         display: flex;
-      
+
         flex: 1;
         min-height: 100vh;
         align-items: center;
+      }
+
+      #starfield {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        background: rgb(0, 0, 28);
+        display: block;
       }
 
       .clock {
@@ -52,15 +62,15 @@
         border: 10px solid #fff;
         background-color: rgb(0, 0, 28);
         border-radius: 50%;
-        margin: 10px auto ;
-       
+        margin: 10px auto;
+        z-index: 1;
         position: relative;
         padding: 1rem;
         box-shadow: 0px 0px 0 5px rgba(0, 0, 0, 0.1), inset 0 0 0 5px #efefef,
           inset 0 0 10px black, 0 0 10px rgba(0, 0, 0, 0.2);
       }
 
-      .alt{
+      .alt {
         background-color: #8db8d0;
         transition: 1s;
       }
@@ -87,13 +97,9 @@
       }
 
       .hour-hand {
-        position: absolute;
-        width: 3%;
-        height: 30%;
-        top: 20%;
-        left: 49%;
-        transform-origin: 50% 100%;
         border-radius: 6px;
+        width: 40%;
+        left: 10%;
       }
 
       .second-hand {
@@ -101,43 +107,36 @@
         height: 3px;
       }
 
-    
-    .text-section{
-       margin-top: 64px;
-       background: none ;
-    }
+      .text-section {
+        margin-top: 64px;
+        background: none;
+      }
 
-    .display-text {
-      
+      .display-text {
         padding: 12px;
         display: flex;
         font-weight: 600;
-        font-size: 32px;     
+        font-size: 32px;
       }
 
       button {
-         background: rgba(0, 0, 0, 0.1);
+        background: rgba(0, 0, 0, 0.1);
         color: white;
         border-radius: 48px;
       }
 
       .alt-background {
-    background-color: rgb(0, 0, 28) !important; 
-       transition: 1s;
+        background-color: rgb(0, 0, 28) !important;
+        transition: 1s all;
 
-
-
-       button, .clock, .clock-face {
-  pointer-events: auto !important;
-  z-index: 1000;
-  position: relative;
-}
-}
-
-
-  
-
-    
+        button,
+        .clock,
+        .clock-face {
+          pointer-events: auto !important;
+          z-index: 1000;
+          position: relative;
+        }
+      }
     </style>
 
     <script>
@@ -149,28 +148,85 @@
       const clock = document.querySelector(".clock");
       const button = document.getElementById("btn");
 
+      const canvas = document.getElementById("starfield");
+      const ctx = canvas.getContext("2d");
+      let stars = [];
+      const numStars = 150;
       let toggleFlag = true;
 
-      function changeBG(hour) {
-
-        if(!toggleFlag) return; 
-
-        if(hour >= 18 || hour <= 7){
-          document.body.classList.add("alt-background");
-          clock.classList.add("alt");
-          return;
-        } else{
-          document.body.classList.remove("alt-background");
-          clock.classList.remove("alt");
-        }
-
+      function random(min, max) {
+        return Math.random() * (max - min) + min;
       }
 
-      button.addEventListener('click', () => {
+      function setup() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        stars = [];
+        for (let i = 0; i < numStars; i++) {
+          stars.push({
+            x: random(0, canvas.width),
+            y: random(0, canvas.height),
+            radius: random(0.5, 1.5),
+            alpha: random(0.3, 1),
+            alphaChange: random(0.005, 0.015),
+            speedX: random(-0.05, 0.05),
+            speedY: random(0.02, 0.1),
+          });
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach((star) => {
+          star.alpha += star.alphaChange;
+          if (star.alpha <= 0.3 || star.alpha >= 1)
+            star.alphaChange = -star.alphaChange;
+          star.x += star.speedX;
+          star.y += star.speedY;
+          if (star.x < 0) star.x = canvas.width;
+          if (star.x > canvas.width) star.x = 0;
+          if (star.y > canvas.height) star.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
+          ctx.fillStyle = `rgba(255,255,255,${star.alpha})`;
+          ctx.fill();
+        });
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener("resize", setup);
+
+      setup();
+      animate();
+
+      function changeBG(hour) {
+        if (!toggleFlag) {
+          canvas.style.display = "block";
+          clock.classList.add("alt");
+          return;
+        }
+
+        if (hour >= 18 || hour <= 7) {
+          canvas.style.display = "block";
+          clock.classList.add("alt");
+          return;
+        } else {
+          canvas.style.display = "none";
+          clock.classList.remove("alt");
+        }
+      }
+
+      button.addEventListener("click", () => {
         toggleFlag = !toggleFlag;
-        document.body.classList.toggle("alt-background");
-        clock.classList.toggle("alt");
-      })
+
+        if (toggleFlag) {
+          canvas.style.display = "block";
+        } else {
+          canvas.style.display = "none";
+        }
+        changeBG(new Date().getHours());
+      });
 
       function setRotation(hand, degree) {
         if (degree === 90) {
@@ -192,7 +248,9 @@
         const hours = now.getHours();
         console.log(seconds);
         const secondsDegree = (seconds / 60) * 360 + 90;
-        const hoursDegree = (hours / 60) * 360 + 90;
+
+        const hoursDegree = ((hours % 12) + minutes / 60) * 30 + 90;
+
         const minutesDegree = (minutes / 60) * 360 + 90;
 
         setRotation(minuteHand, minutesDegree);
@@ -205,12 +263,10 @@
           .toString()
           .padStart(2, "0")} : ${seconds.toString().padStart(2, "0")}`;
 
-          changeBG(hours);
+        changeBG(hours);
       }
       setInterval(setDate, 1000);
       setDate();
-
-     
     </script>
   </body>
 </html>
