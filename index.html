@@ -10,6 +10,7 @@
     <div class="wrapper"></div>
 
     <canvas id="starfield"></canvas>
+    <canvas id="cloudfield"></canvas>
 
     <div class="clock">
       <div class="clock-face">
@@ -56,6 +57,20 @@
         display: block;
       }
 
+      #cloudfield {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: transparent;
+        display: block;
+      }
+
+      #cloudfield {
+        z-index: 1; /* above stars */
+      }
+
       .clock {
         width: 30rem;
         height: 30rem;
@@ -63,7 +78,7 @@
         background-color: rgb(0, 0, 28);
         border-radius: 50%;
         margin: 10px auto;
-        z-index: 1;
+        z-index: 2;
         position: relative;
         padding: 1rem;
         box-shadow: 0px 0px 0 5px rgba(0, 0, 0, 0.1), inset 0 0 0 5px #efefef,
@@ -199,6 +214,70 @@
 
       setup();
       animate();
+
+      // Clouds setup
+      const cloudCanvas = document.getElementById("cloudfield");
+      const cloudCtx = cloudCanvas.getContext("2d");
+
+      let clouds = [];
+      const numClouds = 30;
+
+      function setupClouds() {
+        cloudCanvas.width = window.innerWidth;
+        cloudCanvas.height = window.innerHeight;
+        clouds = [];
+        for (let i = 0; i < numClouds; i++) {
+          clouds.push({
+            x: random(0, cloudCanvas.width),
+            y: random(0, (cloudCanvas.height / 3) * 2),
+            size: random(50, 200),
+            speed: random(0.05, 0.2),
+          });
+        }
+      }
+
+      function drawCloud(x, y, size) {
+        cloudCtx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        cloudCtx.beginPath();
+        cloudCtx.arc(x, y, size * 0.3, Math.PI * 0.5, Math.PI * 1.5);
+        cloudCtx.arc(
+          x + size * 0.5,
+          y - size * 0.3,
+          size * 0.4,
+          Math.PI * 1,
+          Math.PI * 1.85
+        );
+        cloudCtx.arc(
+          x + size,
+          y,
+          size * 0.3,
+          Math.PI * 1.37,
+          Math.PI * 0.37,
+          true
+        );
+        cloudCtx.closePath();
+        cloudCtx.fill();
+      }
+
+      function animateClouds() {
+        cloudCtx.clearRect(0, 0, cloudCanvas.width, cloudCanvas.height);
+        clouds.forEach((cloud) => {
+          cloud.x += cloud.speed;
+          if (cloud.x - cloud.size > cloudCanvas.width) {
+            cloud.x = -cloud.size;
+            cloud.y = random(0, cloudCanvas.height / 2);
+            cloud.size = random(50, 120);
+            cloud.speed = random(0.05, 0.2);
+          }
+          drawCloud(cloud.x, cloud.y, cloud.size);
+        });
+        requestAnimationFrame(animateClouds);
+      }
+
+      setupClouds();
+      animateClouds();
+
+      //clock setup
 
       function changeBG(hour) {
         if (!toggleFlag) {
