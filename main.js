@@ -106,7 +106,7 @@ const cloudCanvas = document.getElementById("cloudfield");
 const cloudCtx = cloudCanvas.getContext("2d");
 
 let clouds = [];
-const numClouds = 20;
+const numClouds = 10;
 
 const setupClouds = () => {
   cloudCanvas.width = window.innerWidth;

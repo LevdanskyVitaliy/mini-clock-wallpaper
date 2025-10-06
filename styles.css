@@ -48,12 +48,36 @@ body {
   border: 10px solid #fff;
   background-color: rgb(0, 0, 28);
   border-radius: 50%;
-  margin: 10px auto;
+  margin: 2rem auto;
   z-index: 2;
   position: relative;
   padding: 1rem;
   box-shadow: 0px 0px 0 5px rgba(0, 0, 0, 0.1), inset 0 0 0 5px #efefef,
     inset 0 0 10px black, 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.lines {
+  position: absolute;
+  width: 3rem;
+  height: 1rem;
+  border-radius: 10px;
+  background-color: #fff;
+  top: 0; /* position at top center */
+
+  transform-origin: center bottom; /* rotate around bottom center */
+}
+
+.lines:nth-child(1) {
+  transform: rotate(0deg) translateX(26.5rem) translateY(15.6rem);
+}
+.lines:nth-child(2) {
+  transform: rotate(90deg) translateX(2rem) translateY(-13rem);
+}
+.lines:nth-child(3) {
+  transform: translateX(0.5rem) translateY(15.6rem);
+}
+.lines:nth-child(4) {
+  transform: rotate(270deg) translateX(-28rem) translateY(14rem);
 }
 
 .alt {
@@ -64,7 +88,6 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  transform: translateY(-3px); /* account for the height of the clock hands */
 }
 
 .hand {
